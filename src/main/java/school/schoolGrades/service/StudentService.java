@@ -24,8 +24,8 @@ import school.schoolGrades.persistence.repository.extraTables.SubjectRepositoryI
 import java.util.List;
 import java.util.Set;
 
-import static school.schoolGrades.findBy.FindBy.findStudentById;
-import static school.schoolGrades.findBy.FindBy.findSubjectById;
+import static school.schoolGrades.Helpers.FindBy.findStudentById;
+import static school.schoolGrades.Helpers.FindBy.findSubjectById;
 
 @Service
 @RequiredArgsConstructor

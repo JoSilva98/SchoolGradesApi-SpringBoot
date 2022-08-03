@@ -45,13 +45,13 @@ public class StudentController {
         return this.studentService.updateStudent(id, personUpdateDto);
     }
 
-    @PatchMapping("/join")
+    @PatchMapping("join")
     public Set<SubjectDto> joinSubject(@RequestParam(value = "studentid") Long studentId,
                                        @RequestParam(value = "subjectid") int subjectId) {
         return this.studentService.joinSubject(studentId, subjectId);
     }
 
-    @PatchMapping("/unjoin")
+    @PatchMapping("unjoin")
     public Set<SubjectDto> unjoinSubject(@RequestParam(value = "studentid") Long studentId,
                                          @RequestParam(value = "subjectid") int subjectId) {
         return this.studentService.unjoinSubject(studentId, subjectId);

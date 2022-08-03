@@ -1,4 +1,4 @@
-package school.schoolGrades.findBy;
+package school.schoolGrades.Helpers;
 
 import school.schoolGrades.exception.NotFoundException;
 import school.schoolGrades.persistence.model.Person;

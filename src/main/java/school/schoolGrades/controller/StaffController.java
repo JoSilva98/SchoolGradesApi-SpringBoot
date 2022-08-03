@@ -49,6 +49,11 @@ public class StaffController {
         return this.staffService.getStudentById(id);
     }
 
+    @GetMapping("students/subject/{id}")
+    public List<PersonDto> getStudentsBySubject(@PathVariable("id") int id) {
+        return this.staffService.getStudentsBySubject(id);
+    }
+
     @GetMapping("teachers")
     public List<TeacherDto> getAllTeachers() {
         return this.staffService.getAllTeachers();
@@ -82,6 +87,18 @@ public class StaffController {
     @PostMapping("subjects")
     public SubjectDto addSubject(@Valid @RequestBody SubjectDto subjectDto) {
         return this.staffService.addSubject(subjectDto);
+    }
+
+    @PatchMapping("join")
+    public List<PersonDto> joinStudentToSubject(@RequestParam(value = "studentid") Long studentId,
+                                           @RequestParam(value = "subjectid") int subjectId) {
+        return this.staffService.joinStudentToSubject(studentId, subjectId);
+    }
+
+    @PatchMapping("unjoin")
+    public List<PersonDto> unjoinStudentToSubject(@RequestParam(value = "studentid") Long studentId,
+                                             @RequestParam(value = "subjectid") int subjectId) {
+        return this.staffService.unjoinStudentToSubject(studentId, subjectId);
     }
 
     @DeleteMapping("people/{id}")

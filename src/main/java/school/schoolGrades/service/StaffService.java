@@ -18,12 +18,14 @@ import school.schoolGrades.persistence.model.Person;
 import school.schoolGrades.persistence.model.Staff;
 import school.schoolGrades.persistence.model.Student;
 import school.schoolGrades.persistence.model.Teacher;
+import school.schoolGrades.persistence.model.extraTables.Grade;
 import school.schoolGrades.persistence.model.extraTables.Role;
 import school.schoolGrades.persistence.model.extraTables.Subject;
 import school.schoolGrades.persistence.repository.PersonRepositoryI;
 import school.schoolGrades.persistence.repository.StaffRepositoryI;
 import school.schoolGrades.persistence.repository.StudentRepositoryI;
 import school.schoolGrades.persistence.repository.TeacherRepositoryI;
+import school.schoolGrades.persistence.repository.extraTables.GradeRepositoryI;
 import school.schoolGrades.persistence.repository.extraTables.RoleRepositoryI;
 import school.schoolGrades.persistence.repository.extraTables.SubjectRepositoryI;
 
@@ -31,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static school.schoolGrades.findBy.FindBy.*;
+import static school.schoolGrades.Helpers.FindBy.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,8 +42,9 @@ public class StaffService implements StaffServiceI {
     private final StudentRepositoryI studentRepository;
     private final TeacherRepositoryI teacherRepository;
     private final StaffRepositoryI staffRepository;
-    private final RoleRepositoryI roleRepository;
     private final SubjectRepositoryI subjectRepository;
+    private final GradeRepositoryI gradeRepository;
+    private final RoleRepositoryI roleRepository;
     private final MainConverterI converter;
     private final PasswordEncoder encoder;
     private final CheckAuth checkAuth;
@@ -97,6 +100,15 @@ public class StaffService implements StaffServiceI {
     public StudentDto getStudentById(Long id) {
         Student student = findStudentById(id, this.studentRepository);
         return this.converter.converter(student, StudentDto.class);
+    }
+
+    @Override
+    public List<PersonDto> getStudentsBySubject(int id) {
+        Subject subject = findSubjectById(id, this.subjectRepository);
+
+        return this.converter.listConverter(
+                subject.getStudentList(), PersonDto.class
+        );
     }
 
     @Override
@@ -164,6 +176,52 @@ public class StaffService implements StaffServiceI {
         );
 
         return this.converter.converter(subject, SubjectDto.class);
+    }
+
+    @Override
+    public List<PersonDto> joinStudentToSubject(Long studentId, int subjectId) {
+        Subject subject = findSubjectById(subjectId, this.subjectRepository);
+        Student student = findStudentById(studentId, this.studentRepository);
+
+        if (!student.addSubject(subject))
+            throw new ConflictException("Student is already joining this subject");
+
+        this.gradeRepository.save(
+                Grade.builder()
+                        .studentId(student)
+                        .subjectId(subject)
+                        .build()
+        );
+
+        this.studentRepository.save(student);
+
+        return this.converter.listConverter(
+                subject.getStudentList(), PersonDto.class
+        );
+
+//        return this.converter.converter(
+//                this.studentRepository.save(student), StudentDto.class
+//        );
+    }
+
+    @Override
+    public List<PersonDto> unjoinStudentToSubject(Long studentId, int subjectId) {
+        Subject subject = findSubjectById(subjectId, this.subjectRepository);
+        Student student = findStudentById(studentId, this.studentRepository);
+
+        this.gradeRepository.delete(
+                this.gradeRepository.findByStudentAndSubject(student.getId(), subject.getId())
+                        .orElseThrow(() -> new NotFoundException("Grade not found"))
+        );
+
+        if (!student.removeSubject(subject))
+            throw new ConflictException("Student is not joining this subject");
+
+        this.studentRepository.save(student);
+
+        return this.converter.listConverter(
+                subject.getStudentList(), PersonDto.class
+        );
     }
 
     @Override

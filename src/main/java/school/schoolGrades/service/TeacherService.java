@@ -23,7 +23,7 @@ import school.schoolGrades.persistence.repository.extraTables.SubjectRepositoryI
 import java.util.List;
 import java.util.Set;
 
-import static school.schoolGrades.findBy.FindBy.*;
+import static school.schoolGrades.Helpers.FindBy.*;
 
 @Service
 @RequiredArgsConstructor

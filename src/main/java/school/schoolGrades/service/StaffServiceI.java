@@ -21,6 +21,8 @@ public interface StaffServiceI {
 
     StudentDto getStudentById(Long id);
 
+    List<PersonDto> getStudentsBySubject(int id);
+
     List<TeacherDto> getAllTeachers();
 
     TeacherDto getTeacherById(Long id);
@@ -34,6 +36,10 @@ public interface StaffServiceI {
     PersonDto addPerson(PersonDto personDto);
 
     SubjectDto addSubject(SubjectDto subjectDto);
+
+    List<PersonDto> joinStudentToSubject(Long studentId, int subjectId);
+
+    List<PersonDto> unjoinStudentToSubject(Long studentId, int subjectId);
 
     void deletePerson(Long id);
 
