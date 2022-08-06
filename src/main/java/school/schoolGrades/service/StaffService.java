@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static school.schoolGrades.Helpers.FindBy.*;
+import static school.schoolGrades.helpers.FindBy.*;
 
 @Service
 @RequiredArgsConstructor
