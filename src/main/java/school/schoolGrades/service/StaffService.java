@@ -1,6 +1,9 @@
 package school.schoolGrades.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import school.schoolGrades.command.PersonDto;
@@ -9,11 +12,12 @@ import school.schoolGrades.command.StudentDto;
 import school.schoolGrades.command.TeacherDto;
 import school.schoolGrades.command.extraTables.RoleDto;
 import school.schoolGrades.command.extraTables.SubjectDto;
-import school.schoolGrades.config.CheckAuth;
 import school.schoolGrades.converter.MainConverterI;
 import school.schoolGrades.enums.RolesEnum;
 import school.schoolGrades.exception.ConflictException;
+import school.schoolGrades.exception.ValueNotAllowedException;
 import school.schoolGrades.exception.NotFoundException;
+import school.schoolGrades.helpers.ValidateRequest;
 import school.schoolGrades.persistence.model.Person;
 import school.schoolGrades.persistence.model.Staff;
 import school.schoolGrades.persistence.model.Student;
@@ -34,6 +38,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static school.schoolGrades.helpers.FindBy.*;
+import static school.schoolGrades.helpers.ValidateRequest.validatePages;
 
 @Service
 @RequiredArgsConstructor
@@ -47,13 +52,16 @@ public class StaffService implements StaffServiceI {
     private final RoleRepositoryI roleRepository;
     private final MainConverterI converter;
     private final PasswordEncoder encoder;
-    private final CheckAuth checkAuth;
 
     @Override
-    public List<PersonDto> getAllPeople() {
-        return this.converter.listConverter(
-                this.personRepository.findAll(), PersonDto.class
-        );
+    public List<PersonDto> getAllPeople(String field, int page, int pageSize) {
+        validatePages(page, pageSize);
+
+        List<Person> people = this.personRepository.findAll(
+                PageRequest.of(page - 1, pageSize).withSort(Sort.by(field))
+        ).stream().toList();
+
+        return this.converter.listConverter(people, PersonDto.class);
     }
 
     @Override
@@ -90,10 +98,14 @@ public class StaffService implements StaffServiceI {
     }
 
     @Override
-    public List<StudentDto> getAllStudents() {
-        return this.converter.listConverter(
-                this.studentRepository.findAll(), StudentDto.class
-        );
+    public List<StudentDto> getAllStudents(String field, int page, int pageSize) {
+        validatePages(page, pageSize);
+
+        List<Student> students = this.studentRepository.findAll(
+                PageRequest.of(page - 1, pageSize).withSort(Sort.by(field))
+        ).stream().toList();
+
+        return this.converter.listConverter(students, StudentDto.class);
     }
 
     @Override
@@ -112,10 +124,14 @@ public class StaffService implements StaffServiceI {
     }
 
     @Override
-    public List<TeacherDto> getAllTeachers() {
-        return this.converter.listConverter(
-                this.teacherRepository.findAll(), TeacherDto.class
-        );
+    public List<TeacherDto> getAllTeachers(String field, int page, int pageSize) {
+        validatePages(page, pageSize);
+
+        List<Teacher> teachers = this.teacherRepository.findAll(
+                PageRequest.of(page - 1, pageSize).withSort(Sort.by(field))
+        ).stream().toList();
+
+        return this.converter.listConverter(teachers, TeacherDto.class);
     }
 
     @Override
@@ -198,10 +214,6 @@ public class StaffService implements StaffServiceI {
         return this.converter.listConverter(
                 subject.getStudentList(), PersonDto.class
         );
-
-//        return this.converter.converter(
-//                this.studentRepository.save(student), StudentDto.class
-//        );
     }
 
     @Override

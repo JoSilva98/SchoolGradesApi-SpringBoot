@@ -9,7 +9,7 @@ import school.schoolGrades.command.extraTables.SubjectDto;
 import java.util.List;
 
 public interface StaffServiceI {
-    List<PersonDto> getAllPeople();
+    List<PersonDto> getAllPeople(String field, int page, int pageSize);
 
     PersonDto getPeopleById(Long id);
 
@@ -17,13 +17,13 @@ public interface StaffServiceI {
 
     List<PersonDto> getPeopleByRole(int id);
 
-    List<StudentDto> getAllStudents();
+    List<StudentDto> getAllStudents(String field, int page, int pageSize);
 
     StudentDto getStudentById(Long id);
 
     List<PersonDto> getStudentsBySubject(int id);
 
-    List<TeacherDto> getAllTeachers();
+    List<TeacherDto> getAllTeachers(String field, int page, int pageSize);
 
     TeacherDto getTeacherById(Long id);
 

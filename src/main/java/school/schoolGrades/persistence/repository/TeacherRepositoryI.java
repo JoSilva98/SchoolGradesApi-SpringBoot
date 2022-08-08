@@ -15,4 +15,10 @@ public interface TeacherRepositoryI extends JpaRepository<Teacher, Long> {
 
     @Query(value = "SELECT * FROM teachers WHERE email LIKE %:email%", nativeQuery = true)
     List<Teacher> findLikeEmail(String email);
+
+    @Query(value = """
+            SELECT * FROM teachers
+            ORDER BY teachers.id
+            LIMIT :teaPerPage OFFSET :offset""", nativeQuery = true)
+    List<Teacher> findPage(int teaPerPage, int offset);
 }

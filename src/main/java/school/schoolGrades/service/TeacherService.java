@@ -10,7 +10,7 @@ import school.schoolGrades.command.extraTables.GradeDto;
 import school.schoolGrades.command.extraTables.SubjectDto;
 import school.schoolGrades.config.CheckAuth;
 import school.schoolGrades.converter.MainConverterI;
-import school.schoolGrades.exception.NotAllowedValueException;
+import school.schoolGrades.exception.ValueNotAllowedException;
 import school.schoolGrades.exception.NotFoundException;
 import school.schoolGrades.persistence.model.Student;
 import school.schoolGrades.persistence.model.Teacher;
@@ -87,7 +87,7 @@ public class TeacherService implements TeacherServiceI {
                 .orElseThrow(() -> new NotFoundException("Student is not joining this subject"));
 
         if (newValue < 1 || newValue > 20)
-            throw new NotAllowedValueException("Value not allowed");
+            throw new ValueNotAllowedException("Only values between 1 and 20");
 
         grade.setValue(newValue);
         return this.converter.converter(
