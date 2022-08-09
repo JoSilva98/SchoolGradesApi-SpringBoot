@@ -15,6 +15,8 @@ import javax.persistence.*;
 @Table(name = "staff")
 public class Staff extends Person {
     private static Long staffIdStatic = 2L;
+
+    @Column(nullable = false)
     private Long staffId = staffIdStatic;
 
     public void increaseStaffId() {

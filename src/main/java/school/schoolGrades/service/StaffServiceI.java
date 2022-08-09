@@ -1,31 +1,24 @@
 package school.schoolGrades.service;
 
 import school.schoolGrades.command.PersonDto;
-import school.schoolGrades.command.StudentDto;
-import school.schoolGrades.command.TeacherDto;
+import school.schoolGrades.command.PersonUpdateDto;
 import school.schoolGrades.command.extraTables.RoleDto;
 import school.schoolGrades.command.extraTables.SubjectDto;
 
 import java.util.List;
 
 public interface StaffServiceI {
-    List<PersonDto> getAllPeople(String field, int page, int pageSize);
+    List<PersonDto> getAllPeople(String table, String field, int page, int pageSize);
 
-    PersonDto getPeopleById(Long id);
+    PersonDto getPeopleById(String table, Long id);
 
     List<PersonDto> getPeopleByEmail(String email);
 
     List<PersonDto> getPeopleByRole(int id);
 
-    List<StudentDto> getAllStudents(String field, int page, int pageSize);
+    List<PersonDto> getPeopleBySubject(String table, int id);
 
-    StudentDto getStudentById(Long id);
-
-    List<PersonDto> getStudentsBySubject(int id);
-
-    List<TeacherDto> getAllTeachers(String field, int page, int pageSize);
-
-    TeacherDto getTeacherById(Long id);
+    List<SubjectDto> getPersonSubjects(String table, Long id);
 
     List<SubjectDto> getAllSubjects();
 
@@ -37,9 +30,11 @@ public interface StaffServiceI {
 
     SubjectDto addSubject(SubjectDto subjectDto);
 
-    List<PersonDto> joinStudentToSubject(Long studentId, int subjectId);
+    PersonDto updatePerson(Long id, PersonUpdateDto updateDto);
 
-    List<PersonDto> unjoinStudentToSubject(Long studentId, int subjectId);
+    List<PersonDto> joinPersonToSubject(String table, Long id, int subjectId);
+
+    List<PersonDto> unjoinPersonFromSubject(String table, Long id, int subjectId);
 
     void deletePerson(Long id);
 

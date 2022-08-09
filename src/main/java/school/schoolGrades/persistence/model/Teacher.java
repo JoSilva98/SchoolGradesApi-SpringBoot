@@ -19,6 +19,8 @@ import java.util.Set;
 public class Teacher extends Person {
 
     private static Long teacherIdStatic = 2L;
+
+    @Column(nullable = false)
     private Long teacherId = teacherIdStatic;
 
     @ManyToMany
@@ -31,5 +33,13 @@ public class Teacher extends Person {
 
     public void increaseTeacherId() {
         teacherIdStatic++;
+    }
+
+    public boolean addSubject(Subject subject) {
+        return this.subjectList.add(subject);
+    }
+
+    public boolean removeSubject(Subject subject) {
+        return this.subjectList.remove(subject);
     }
 }

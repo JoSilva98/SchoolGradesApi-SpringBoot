@@ -3,8 +3,7 @@ package school.schoolGrades.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.schoolGrades.command.PersonDto;
-import school.schoolGrades.command.StudentDto;
-import school.schoolGrades.command.TeacherDto;
+import school.schoolGrades.command.PersonUpdateDto;
 import school.schoolGrades.command.extraTables.RoleDto;
 import school.schoolGrades.command.extraTables.SubjectDto;
 import school.schoolGrades.service.StaffServiceI;
@@ -19,16 +18,18 @@ import java.util.List;
 public class StaffController {
     private final StaffServiceI staffService;
 
-    @GetMapping("people")
-    public List<PersonDto> getAllPeople(@RequestParam(value = "field") String field,
+    @GetMapping("{table}")
+    public List<PersonDto> getAllPeople(@PathVariable("table") String table,
+                                        @RequestParam(value = "field") String field,
                                         @RequestParam(value = "page") int page,
                                         @RequestParam(value = "pagesize") int pageSize) {
-        return this.staffService.getAllPeople(field, page, pageSize);
+        return this.staffService.getAllPeople(table, field, page, pageSize);
     }
 
-    @GetMapping("people/{id}")
-    public PersonDto getPeopleById(@PathVariable("id") Long id) {
-        return this.staffService.getPeopleById(id);
+    @GetMapping
+    public PersonDto getPeopleById(@RequestParam(value = "table") String table,
+                                   @RequestParam(value = "id") Long id) {
+        return this.staffService.getPeopleById(table, id);
     }
 
     @GetMapping("people/email")
@@ -41,33 +42,16 @@ public class StaffController {
         return this.staffService.getPeopleByRole(id);
     }
 
-    @GetMapping("students")
-    public List<StudentDto> getAllStudents(@RequestParam(value = "field") String field,
-                                           @RequestParam(value = "page") int page,
-                                           @RequestParam(value = "pagesize") int pageSize) {
-        return this.staffService.getAllStudents(field, page, pageSize);
+    @GetMapping("subjects/{id}/table/{table}")
+    public List<PersonDto> getPeopleBySubject(@PathVariable("id") int id,
+                                              @PathVariable("table") String table) {
+        return this.staffService.getPeopleBySubject(table, id);
     }
 
-    @GetMapping("students/{id}")
-    public StudentDto getStudentById(@PathVariable("id") Long id) {
-        return this.staffService.getStudentById(id);
-    }
-
-    @GetMapping("students/subject/{id}")
-    public List<PersonDto> getStudentsBySubject(@PathVariable("id") int id) {
-        return this.staffService.getStudentsBySubject(id);
-    }
-
-    @GetMapping("teachers")
-    public List<TeacherDto> getAllTeachers(@RequestParam(value = "field") String field,
-                                           @RequestParam(value = "page") int page,
-                                           @RequestParam(value = "pagesize") int pageSize) {
-        return this.staffService.getAllTeachers(field, page, pageSize);
-    }
-
-    @GetMapping("teachers/{id}")
-    public TeacherDto getTeacherById(@PathVariable("id") Long id) {
-        return this.staffService.getTeacherById(id);
+    @GetMapping("{table}/id/{id}")
+    public List<SubjectDto> getPersonSubjects(@PathVariable("table") String table,
+                                              @PathVariable("id") Long id) {
+        return this.staffService.getPersonSubjects(table, id);
     }
 
     @GetMapping("subjects")
@@ -95,16 +79,24 @@ public class StaffController {
         return this.staffService.addSubject(subjectDto);
     }
 
+    @PatchMapping("person/{id}")
+    public PersonDto updatePerson(@PathVariable("id") Long id,
+                                  @Valid @RequestBody PersonUpdateDto updateDto) {
+        return this.staffService.updatePerson(id, updateDto);
+    }
+
     @PatchMapping("join")
-    public List<PersonDto> joinStudentToSubject(@RequestParam(value = "studentid") Long studentId,
-                                                @RequestParam(value = "subjectid") int subjectId) {
-        return this.staffService.joinStudentToSubject(studentId, subjectId);
+    public List<PersonDto> joinPersonToSubject(@RequestParam(value = "table") String table,
+                                               @RequestParam(value = "id") Long id,
+                                               @RequestParam(value = "subjectid") int subjectId) {
+        return this.staffService.joinPersonToSubject(table, id, subjectId);
     }
 
     @PatchMapping("unjoin")
-    public List<PersonDto> unjoinStudentToSubject(@RequestParam(value = "studentid") Long studentId,
-                                                  @RequestParam(value = "subjectid") int subjectId) {
-        return this.staffService.unjoinStudentToSubject(studentId, subjectId);
+    public List<PersonDto> unjoinPersonFromSubject(@RequestParam(value = "table") String table,
+                                                   @RequestParam(value = "id") Long id,
+                                                   @RequestParam(value = "subjectid") int subjectId) {
+        return this.staffService.unjoinPersonFromSubject(table, id, subjectId);
     }
 
     @DeleteMapping("people/{id}")

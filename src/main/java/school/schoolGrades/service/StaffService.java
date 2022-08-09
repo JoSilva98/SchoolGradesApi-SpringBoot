@@ -1,23 +1,18 @@
 package school.schoolGrades.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import school.schoolGrades.command.PersonDto;
-import school.schoolGrades.command.StaffDto;
-import school.schoolGrades.command.StudentDto;
-import school.schoolGrades.command.TeacherDto;
+import school.schoolGrades.command.*;
 import school.schoolGrades.command.extraTables.RoleDto;
 import school.schoolGrades.command.extraTables.SubjectDto;
 import school.schoolGrades.converter.MainConverterI;
 import school.schoolGrades.enums.RolesEnum;
+import school.schoolGrades.enums.TableEnum;
 import school.schoolGrades.exception.ConflictException;
-import school.schoolGrades.exception.ValueNotAllowedException;
 import school.schoolGrades.exception.NotFoundException;
-import school.schoolGrades.helpers.ValidateRequest;
 import school.schoolGrades.persistence.model.Person;
 import school.schoolGrades.persistence.model.Staff;
 import school.schoolGrades.persistence.model.Student;
@@ -25,10 +20,7 @@ import school.schoolGrades.persistence.model.Teacher;
 import school.schoolGrades.persistence.model.extraTables.Grade;
 import school.schoolGrades.persistence.model.extraTables.Role;
 import school.schoolGrades.persistence.model.extraTables.Subject;
-import school.schoolGrades.persistence.repository.PersonRepositoryI;
-import school.schoolGrades.persistence.repository.StaffRepositoryI;
-import school.schoolGrades.persistence.repository.StudentRepositoryI;
-import school.schoolGrades.persistence.repository.TeacherRepositoryI;
+import school.schoolGrades.persistence.repository.*;
 import school.schoolGrades.persistence.repository.extraTables.GradeRepositoryI;
 import school.schoolGrades.persistence.repository.extraTables.RoleRepositoryI;
 import school.schoolGrades.persistence.repository.extraTables.SubjectRepositoryI;
@@ -54,9 +46,19 @@ public class StaffService implements StaffServiceI {
     private final PasswordEncoder encoder;
 
     @Override
-    public List<PersonDto> getAllPeople(String field, int page, int pageSize) {
+    public List<PersonDto> getAllPeople(String table, String field, int page, int pageSize) {
         validatePages(page, pageSize);
 
+        return switch (table.toUpperCase()) {
+            case TableEnum.PEOPLE -> findAllPeople(field, page, pageSize);
+            case TableEnum.STUDENTS -> findAllStudents(field, page, pageSize);
+            case TableEnum.TEACHERS -> findAllTeachers(field, page, pageSize);
+            case TableEnum.STAFF -> findAllStaff(field, page, pageSize);
+            default -> throw new NotFoundException("Table not found");
+        };
+    }
+
+    private List<PersonDto> findAllPeople(String field, int page, int pageSize) {
         List<Person> people = this.personRepository.findAll(
                 PageRequest.of(page - 1, pageSize).withSort(Sort.by(field))
         ).stream().toList();
@@ -64,11 +66,45 @@ public class StaffService implements StaffServiceI {
         return this.converter.listConverter(people, PersonDto.class);
     }
 
-    @Override
-    public PersonDto getPeopleById(Long id) {
-        Person person = findPersonById(id, this.personRepository);
-        return this.converter.converter(person, PersonDto.class);
+    private List<PersonDto> findAllStudents(String field, int page, int pageSize) {
+        List<Student> students = this.studentRepository.findAll(
+                PageRequest.of(page - 1, pageSize).withSort(Sort.by(field))
+        ).stream().toList();
+
+        return this.converter.listConverter(students, PersonDto.class);
     }
+
+    private List<PersonDto> findAllTeachers(String field, int page, int pageSize) {
+        List<Teacher> teachers = this.teacherRepository.findAll(
+                PageRequest.of(page - 1, pageSize).withSort(Sort.by(field))
+        ).stream().toList();
+
+        return this.converter.listConverter(teachers, PersonDto.class);
+    }
+
+    private List<PersonDto> findAllStaff(String field, int page, int pageSize) {
+        List<Staff> staff = this.staffRepository.findAll(
+                PageRequest.of(page - 1, pageSize).withSort(Sort.by(field))
+        ).stream().toList();
+
+        return this.converter.listConverter(staff, PersonDto.class);
+    }
+
+    @Override
+    public PersonDto getPeopleById(String table, Long id) {
+        return switch (table.toUpperCase()) {
+            case TableEnum.PEOPLE -> this.converter.converter(
+                    findPersonById(id, this.personRepository), PersonDto.class);
+            case TableEnum.STUDENTS -> this.converter.converter(
+                    findStudentById(id, this.studentRepository), StudentDto.class);
+            case TableEnum.TEACHERS -> this.converter.converter(
+                    findTeacherById(id, this.teacherRepository), TeacherDto.class);
+            case TableEnum.STAFF -> this.converter.converter(
+                    findStaffById(id, this.staffRepository), StaffDto.class);
+            default -> throw new NotFoundException("Table not found");
+        };
+    }
+
 
     @Override
     public List<PersonDto> getPeopleByEmail(String email) {
@@ -98,46 +134,35 @@ public class StaffService implements StaffServiceI {
     }
 
     @Override
-    public List<StudentDto> getAllStudents(String field, int page, int pageSize) {
-        validatePages(page, pageSize);
-
-        List<Student> students = this.studentRepository.findAll(
-                PageRequest.of(page - 1, pageSize).withSort(Sort.by(field))
-        ).stream().toList();
-
-        return this.converter.listConverter(students, StudentDto.class);
-    }
-
-    @Override
-    public StudentDto getStudentById(Long id) {
-        Student student = findStudentById(id, this.studentRepository);
-        return this.converter.converter(student, StudentDto.class);
-    }
-
-    @Override
-    public List<PersonDto> getStudentsBySubject(int id) {
+    public List<PersonDto> getPeopleBySubject(String table, int id) {
         Subject subject = findSubjectById(id, this.subjectRepository);
 
-        return this.converter.listConverter(
-                subject.getStudentList(), PersonDto.class
-        );
+        return switch (table.toUpperCase()) {
+            case TableEnum.STUDENTS -> this.converter.listConverter(
+                    subject.getStudentList(), PersonDto.class);
+            case TableEnum.TEACHERS -> this.converter.listConverter(
+                    subject.getTeacherList(), PersonDto.class);
+            default -> throw new NotFoundException("Table not found");
+        };
     }
 
     @Override
-    public List<TeacherDto> getAllTeachers(String field, int page, int pageSize) {
-        validatePages(page, pageSize);
+    public List<SubjectDto> getPersonSubjects(String table, Long id) {
+        switch (table.toUpperCase()) {
+            case TableEnum.STUDENTS -> {
+                Student student = findStudentById(id, this.studentRepository);
 
-        List<Teacher> teachers = this.teacherRepository.findAll(
-                PageRequest.of(page - 1, pageSize).withSort(Sort.by(field))
-        ).stream().toList();
+                return this.converter.listConverter(
+                        student.getSubjectList().stream().toList(), SubjectDto.class);
+            }
+            case TableEnum.TEACHERS -> {
+                Teacher teacher = findTeacherById(id, this.teacherRepository);
 
-        return this.converter.listConverter(teachers, TeacherDto.class);
-    }
-
-    @Override
-    public TeacherDto getTeacherById(Long id) {
-        Teacher teacher = findTeacherById(id, this.teacherRepository);
-        return this.converter.converter(teacher, TeacherDto.class);
+                return this.converter.listConverter(
+                        teacher.getSubjectList().stream().toList(), SubjectDto.class);
+            }
+            default -> throw new NotFoundException("Table not found");
+        }
     }
 
     @Override
@@ -195,9 +220,32 @@ public class StaffService implements StaffServiceI {
     }
 
     @Override
-    public List<PersonDto> joinStudentToSubject(Long studentId, int subjectId) {
+    public PersonDto updatePerson(Long id, PersonUpdateDto updateDto) {
+        Person person = findPersonById(id, this.personRepository);
+
+        String newPass = updateDto.getPassword();
+        if (newPass != null)
+            updateDto.setPassword(this.encoder.encode(newPass));
+
+        Person updatedPerson = this.converter.updateConverter(updateDto, person);
+
+        return this.converter.converter(
+                this.personRepository.save(updatedPerson), PersonDto.class);
+    }
+
+    @Override
+    public List<PersonDto> joinPersonToSubject(String table, Long id, int subjectId) {
         Subject subject = findSubjectById(subjectId, this.subjectRepository);
-        Student student = findStudentById(studentId, this.studentRepository);
+
+        return switch (table.toUpperCase()) {
+            case TableEnum.STUDENTS -> joinStudent(id, subject);
+            case TableEnum.TEACHERS -> joinTeacher(id, subject);
+            default -> throw new NotFoundException("Table not found");
+        };
+    }
+
+    private List<PersonDto> joinStudent(Long id, Subject subject) {
+        Student student = findStudentById(id, this.studentRepository);
 
         if (!student.addSubject(subject))
             throw new ConflictException("Student is already joining this subject");
@@ -206,8 +254,7 @@ public class StaffService implements StaffServiceI {
                 Grade.builder()
                         .studentId(student)
                         .subjectId(subject)
-                        .build()
-        );
+                        .build());
 
         this.studentRepository.save(student);
 
@@ -216,10 +263,32 @@ public class StaffService implements StaffServiceI {
         );
     }
 
+    private List<PersonDto> joinTeacher(Long id, Subject subject) {
+        Teacher teacher = findTeacherById(id, this.teacherRepository);
+
+        if (!teacher.addSubject(subject))
+            throw new ConflictException("Teacher is already teaching this subject");
+
+        this.teacherRepository.save(teacher);
+
+        return this.converter.listConverter(
+                subject.getTeacherList(), PersonDto.class
+        );
+    }
+
     @Override
-    public List<PersonDto> unjoinStudentToSubject(Long studentId, int subjectId) {
+    public List<PersonDto> unjoinPersonFromSubject(String table, Long id, int subjectId) {
         Subject subject = findSubjectById(subjectId, this.subjectRepository);
-        Student student = findStudentById(studentId, this.studentRepository);
+
+        return switch (table.toUpperCase()) {
+            case TableEnum.STUDENTS -> unjoinStudent(id, subject);
+            case TableEnum.TEACHERS -> unjoinTeacher(id, subject);
+            default -> throw new NotFoundException("Table not found");
+        };
+    }
+
+    private List<PersonDto> unjoinStudent(Long id, Subject subject) {
+        Student student = findStudentById(id, this.studentRepository);
 
         this.gradeRepository.delete(
                 this.gradeRepository.findByStudentAndSubject(student.getId(), subject.getId())
@@ -233,6 +302,19 @@ public class StaffService implements StaffServiceI {
 
         return this.converter.listConverter(
                 subject.getStudentList(), PersonDto.class
+        );
+    }
+
+    private List<PersonDto> unjoinTeacher(Long id, Subject subject) {
+        Teacher teacher = findTeacherById(id, this.teacherRepository);
+
+        if (!teacher.removeSubject(subject))
+            throw new ConflictException("Teacher is not teaching this subject");
+
+        this.teacherRepository.save(teacher);
+
+        return this.converter.listConverter(
+                subject.getTeacherList(), PersonDto.class
         );
     }
 

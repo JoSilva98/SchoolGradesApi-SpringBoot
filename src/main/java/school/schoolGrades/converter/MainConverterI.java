@@ -18,8 +18,8 @@ public interface MainConverterI {
                 .collect(Collectors.toList());
     }
 
-    default <T, D> D updateConverter(T update, D toUpdate) {
-        getMapper().map(update, toUpdate);
-        return toUpdate;
+    default <T, D> D updateConverter(T update, D result) {
+        getMapper().map(update, result);
+        return result;
     }
 }

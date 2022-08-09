@@ -17,10 +17,4 @@ public interface StudentRepositoryI extends JpaRepository<Student, Long> {
 
     @Query(value = "SELECT * FROM students WHERE email LIKE %:email%", nativeQuery = true)
     List<Student> findLikeEmail(String email);
-
-    @Query(value = """
-            SELECT * FROM students
-            ORDER BY students.id
-            LIMIT :stuPerPage OFFSET :offset""", nativeQuery = true)
-    List<Student> findPage(int stuPerPage, int offset);
 }

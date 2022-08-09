@@ -20,6 +20,8 @@ import java.util.Set;
 public class Student extends Person {
 
     private static Long studentIdStatic = 2L;
+
+    @Column(nullable = false)
     private Long studentId = studentIdStatic;
 
     @ManyToMany(cascade = CascadeType.MERGE)

@@ -2,11 +2,13 @@ package school.schoolGrades.helpers;
 
 import school.schoolGrades.exception.NotFoundException;
 import school.schoolGrades.persistence.model.Person;
+import school.schoolGrades.persistence.model.Staff;
 import school.schoolGrades.persistence.model.Student;
 import school.schoolGrades.persistence.model.Teacher;
 import school.schoolGrades.persistence.model.extraTables.Role;
 import school.schoolGrades.persistence.model.extraTables.Subject;
 import school.schoolGrades.persistence.repository.PersonRepositoryI;
+import school.schoolGrades.persistence.repository.StaffRepositoryI;
 import school.schoolGrades.persistence.repository.StudentRepositoryI;
 import school.schoolGrades.persistence.repository.TeacherRepositoryI;
 import school.schoolGrades.persistence.repository.extraTables.RoleRepositoryI;
@@ -27,6 +29,11 @@ public class FindBy {
     public static Teacher findTeacherById(Long id, TeacherRepositoryI teacherRepository) {
         return teacherRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Teacher not found"));
+    }
+
+    public static Staff findStaffById(Long id, StaffRepositoryI staffRepository) {
+        return staffRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Staff not found"));
     }
 
     public static Subject findSubjectById(int id, SubjectRepositoryI subjectRepository) {
