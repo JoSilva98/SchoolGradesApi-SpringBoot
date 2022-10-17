@@ -54,6 +54,7 @@ Our API uses [AuthO](https://auth0.com/) as a way of authentication/authorizatio
 | Request | Description | Link            |
 |---------|-------------|-----------------|
 | `POST`  | `SignUp`    | /api/v1/student |
+
 Required JSON body (**Sign Up** endpoint):
 ```
 {
@@ -71,6 +72,7 @@ Required JSON body (**Sign Up** endpoint):
 | Request | Description | Link      |
 |---------|-------------|-----------|
 | `POST`  | `Login`     | /login    |
+
 Required JSON body (**Login** endpoint):
 ```
 {
@@ -95,6 +97,7 @@ Where `table=students` and `id=1` are the parameters.
 | Request | Description          | Link                |
 |---------|----------------------|---------------------|
 | `PATCH` | Update Student       | /{studentid}        |
+
 Required JSON body (**Update Student** endpoint):
 ```
 {
@@ -128,6 +131,7 @@ Required JSON body (**Update Student** endpoint):
 | Request | Description    | Link         |
 |---------|----------------|--------------|
 | `PATCH` | Update Teacher | /{teacherid} |
+
 Required JSON body (**Update Teacher** endpoint):
 ```
 {
@@ -144,6 +148,7 @@ Required JSON body (**Update Teacher** endpoint):
 | Request | Description            | Link    | Parameters                      |
 |---------|------------------------|---------|---------------------------------|
 | `PATCH` | Update Student's Grade | /grades | teacherid, studentid, subjectid |
+
 Required JSON body (**Update Student's Grade** endpoint) (new grade value):
 ```
 20
@@ -179,6 +184,7 @@ Required JSON body (**Update Student's Grade** endpoint) (new grade value):
 | Request | Description         | Link          |
 |---------|---------------------|---------------|
 | `GET`   | Get People by Email | /people/email |
+
 Required JSON body (**Get People by Email** method):
 ```
 example@email.com
@@ -189,6 +195,7 @@ example@email.com
 |---------|---------------|--------------------|
 | `POST`  | Add Person    | /people            |
 | `PATCH` | Update Person | /person/{personid} |
+
 Required JSON body (**Add Person** and **Update Person** methods):
 ```
 {
@@ -212,6 +219,7 @@ Required JSON body (**Add Person** and **Update Person** methods):
 | Request | Description    | Link      |
 |---------|----------------|-----------|
 | `POST`  | Add Subject    | /subjects |
+
 Required JSON body (**Add Subject** method):
 ```
 {
